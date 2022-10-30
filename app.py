@@ -48,7 +48,7 @@ def firefox_profile(os_name: str):
 def driver_path(os_name: str, driver_name: str):
     if os_name == "Windows":
         return f"./drivers/{driver_name}.exe"
-    elif os_name == "Linux" or os_name == "Darwin":
+    elif os_name in ["Linux","Darwin"]:
         return f"./drivers/{driver_name}"
 
 
@@ -88,9 +88,9 @@ def sendmsg_to_contact(driver, contact: str, messages: list):
 
     log(f"Searching contact {contact}")    
     searchbox = patientFindElement(driver,'searchbox')
+    searchbox.clear()
     searchbox.send_keys(contact)
     searchbox.send_keys(ENTER)
-
 
     for message in messages:
         df=pd.DataFrame(message["text"].split("\n"))

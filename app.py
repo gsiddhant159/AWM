@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 from alive_progress import alive_bar
 
-logging = False #Print log statements or not
+logging = True #Print log statements or not
 
 ENTER = Keys.ENTER
 CONTROL = Keys.META if platform.uname().system == "Darwin" else Keys.CONTROL
@@ -86,10 +86,19 @@ def sendmsg_to_contact(driver, contact: str, messages: list):
     if contact.startswith("0"):
         contact = contact[1:]
 
-    log(f"Searching contact {contact}")    
+    log('Finding searchbox')
     searchbox = patientFindElement(driver,'searchbox')
     searchbox.clear()
     searchbox.send_keys(contact)
+
+    log(f"Searching contact {contact}")    
+    
+    WebDriverWait(driver,10) \
+        .until(EC.text_to_be_present_in_element_attribute(
+            ('xpath','//*[@aria-label="Search results."]'),
+            'aria-rowcount','1'),
+            message="Timeout occurred, check connection")
+    
     searchbox.send_keys(ENTER)
 
     for message in messages:
@@ -147,8 +156,7 @@ def send_messages(contact_list: list, messages: list, options):
             try:
                 sendmsg_to_contact(driver, contact, messages)
             except Exception as ex:
-                log(ex)
-                input('continue? ')
+                print(ex)
             bar()
 
     print('\n ALL DONE! \n')
